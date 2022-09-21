@@ -1,8 +1,8 @@
 from pathlib import Path
 from typing import Optional
 
-from .db import DatabaseFile
-from .util import DbFormat, MetaFile
+from meta_manager.db import DatabaseFile
+from meta_manager.types import DbFormat, MetaFile
 
 
 class MetaManager:

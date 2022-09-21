@@ -8,9 +8,10 @@ if (Path(__file__).parents[1] / ".venv").exists():
 
     sys.path.insert(0, str(Path(__file__).parents[1]))
 
-from meta_manager import MetaManager
-from meta_manager.util import DbFormat
 from typer import BadParameter, Option, Typer, echo
+
+from meta_manager import MetaManager
+from meta_manager.types import DbFormat
 
 app = Typer()
 DB_FILENAME = "mm_metadata"
@@ -40,6 +41,7 @@ def add(file: list[Path], *, tags=tags_opt, attrs=attrs_opt):
 @app.command()
 def init(*, root: Path = Path(), fmt: str = "json"):
     """Initialize the database."""
+    breakpoint()
     try:
         db_fmt = DbFormat[fmt.upper()]
     except KeyError:
