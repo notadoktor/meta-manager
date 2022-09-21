@@ -42,18 +42,23 @@ class DatabaseFile(ABC):
             self.data = MetaDatabase()
 
     def save_data(self):
-        new_data = self._serialize()
+        new_data = self._serialize().encode("utf-8")
+        if not new_data.endswith(b"\n"):
+            new_data += b"\n"
+
         if self.path.exists():
             if hash_data(new_data) == hash_file(self.path):
                 print("Database unchanged, no data written")
                 return
+
+        self.path.write_bytes(new_data)
 
     @abstractmethod
     def _read(self) -> MetaDatabase:
         ...
 
     @abstractmethod
-    def _serialize(self) -> bytes:
+    def _serialize(self) -> str:
         ...
 
 

@@ -11,8 +11,9 @@ class StrEnum(str, Enum):
         return name.lower()
 
 
-class DbFormat(Enum):
-    """Database format."""
+class DbFormat(StrEnum):
+    def __str__(self) -> str:
+        return self.value[1:]
 
     JSON = ".json"
     YAML = ".yaml"

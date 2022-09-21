@@ -14,7 +14,7 @@ from meta_manager import MetaManager
 from meta_manager.types import DbFormat
 
 app = Typer()
-DB_FILENAME = "mm_metadata"
+DB_FILENAME = ".mm_metadata"
 
 tags_opt: list[str] = Option("tags", help="Comma-separated list of tags to add")
 attrs_opt: list[dict[str, str]] = Option(
@@ -41,15 +41,19 @@ def add(file: list[Path], *, tags=tags_opt, attrs=attrs_opt):
 @app.command()
 def init(*, root: Path = Path(), fmt: str = "json"):
     """Initialize the database."""
-    breakpoint()
     try:
         db_fmt = DbFormat[fmt.upper()]
     except KeyError:
         raise BadParameter(f"Unsupported database format: {fmt}")
+
     db_file = root.resolve() / f"{DB_FILENAME}.{db_fmt}"
+    if db_file.exists():
+        echo(f"Database already exists at {db_file}, not initializing.")
+        return
+
     mgr = MetaManager(db_file)
     mgr.save()
-    echo(f"Initial database created at {db_file}")
+    echo(f"Initial database created at {db_file.relative_to(Path().resolve())}")
 
 
 @app.command()
