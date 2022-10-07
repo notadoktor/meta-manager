@@ -15,6 +15,7 @@ black = "*"
 pdbpp = "*"
 ipython = "*"
 pipenv-setup = {extras = ["black"], version = "*"}
+isort = "*"
 
 [requires]
 python_version = "3.10"

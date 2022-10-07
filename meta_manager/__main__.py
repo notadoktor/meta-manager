@@ -2,31 +2,20 @@
 
 from pathlib import Path
 
-# lazy dev import
-if (Path(__file__).parents[1] / ".venv").exists():
-    import sys
-
-    sys.path.insert(0, str(Path(__file__).parents[1]))
-
 from typer import BadParameter, Context, Option, Typer, echo
 
 from meta_manager import MetaManager
-from meta_manager.types import DbFormat
+from meta_manager.classes import DbFormat
+from meta_manager.util import comma_list
 
 app = Typer(add_completion=False)
 DB_FILENAME = ".mm.metadata"
+DEFAULT_FORMAT = DbFormat.JSON
+DEFAULT_FILENAME = f"{DB_FILENAME}.{DEFAULT_FORMAT}"
 
-tags_opt: list[str] = Option("tags", help="Comma-separated list of tags to add")
-attrs_opt: list[dict[str, str]] = Option(
-    "attrs", help="Comma-separated list of key=value pairs to add"
-)
-files_opt: list[Path] = Option("files", help="Comma-separated list of files to add")
-
-###
-
-
-def comma_list(value: str, *, val_type: type = str) -> list[str]:
-    return value.split(",")
+TAGS_OPT = Option([], help="Comma-separated list of tags to add", callback=comma_list)
+ATTRS_OPT = Option([], help="Comma-separated list of key=value pairs to add", callback=comma_list)
+FILES_OPT = Option([], help="Comma-separated list of files to add", callback=comma_list)
 
 
 ###
@@ -34,17 +23,27 @@ def comma_list(value: str, *, val_type: type = str) -> list[str]:
 
 @app.callback()
 def init_context(ctx: Context):
-    ctx.obj = MetaManager(Path(DB_FILENAME))
+    for fmt in DbFormat:
+        db_file = Path(f"{DB_FILENAME}.{fmt}")
+        if db_file.exists():
+            ctx.obj = MetaManager(db_file)
+            return
+    ctx.obj = MetaManager(Path(DEFAULT_FILENAME))
 
 
 @app.command()
-def add(file: list[Path], *, tags=tags_opt, attrs=attrs_opt):
+def add(
+    ctx: Context,
+    file: list[str],
+    tags: list[str] = TAGS_OPT,
+    attrs: list[str] = ATTRS_OPT,
+):
     """Add a new file to the database."""
     echo(f"Adding {file} to the database.")
 
 
 @app.command()
-def init(*, root: Path = Path(), fmt: str = "json"):
+def init(ctx: Context, root: Path = Path(), fmt: str = "json"):
     """Initialize the database."""
     try:
         db_fmt = DbFormat[fmt.upper()]
@@ -62,22 +61,23 @@ def init(*, root: Path = Path(), fmt: str = "json"):
 
 
 @app.command()
-def set_tags(names=tags_opt, files=files_opt):
+def set_tags(ctx: Context, names: list[str] = TAGS_OPT, files: list[Path] = FILES_OPT):
     """Add a tag to file(s)"""
     echo(f"Adding tag to {files}.")
 
 
 @app.command()
-def show_file(file: Path):
+def show_file(ctx: Context, file: Path):
     """Shows details for the given file"""
     echo("Searching for files.")
 
 
 @app.command("list")
-def list_files():
+def list_files(ctx: Context):
     """List all files in the database."""
     echo("Listing all files.")
 
 
 if __name__ == "__main__":
+    breakpoint()
     app()

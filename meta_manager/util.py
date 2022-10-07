@@ -16,3 +16,7 @@ def hash_data(data: bytes):
     h = hashlib.md5()
     h.update(data)
     return h.hexdigest()
+
+
+def comma_list(value: str):
+    return value.split(",")

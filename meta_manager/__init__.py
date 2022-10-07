@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Optional
 
 from meta_manager.db import DatabaseFile
-from meta_manager.types import DbFormat, MetaFile
+from meta_manager.classes import DbFormat, MetaFile
 
 
 class MetaManager:

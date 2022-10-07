@@ -6,7 +6,7 @@ from pathlib import Path
 import toml
 import yaml
 
-from meta_manager.types import DbFormat, MetaDatabase
+from meta_manager.classes import DbFormat, MetaDatabase
 from meta_manager.util import hash_data, hash_file
 
 
