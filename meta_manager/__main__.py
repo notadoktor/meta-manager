@@ -8,13 +8,13 @@ if (Path(__file__).parents[1] / ".venv").exists():
 
     sys.path.insert(0, str(Path(__file__).parents[1]))
 
-from typer import BadParameter, Option, Typer, echo
+from typer import BadParameter, Context, Option, Typer, echo
 
 from meta_manager import MetaManager
 from meta_manager.types import DbFormat
 
-app = Typer()
-DB_FILENAME = ".mm_metadata"
+app = Typer(add_completion=False)
+DB_FILENAME = ".mm.metadata"
 
 tags_opt: list[str] = Option("tags", help="Comma-separated list of tags to add")
 attrs_opt: list[dict[str, str]] = Option(
@@ -30,6 +30,11 @@ def comma_list(value: str, *, val_type: type = str) -> list[str]:
 
 
 ###
+
+
+@app.callback()
+def init_context(ctx: Context):
+    ctx.obj = MetaManager(Path(DB_FILENAME))
 
 
 @app.command()
