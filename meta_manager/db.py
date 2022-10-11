@@ -18,11 +18,12 @@ class DbFormat(str, Enum):
         return name.lower()
 
     def __str__(self) -> str:
-        return self.value[1:]
+        return self.value
 
-    JSON = ".json"
-    YAML = ".yaml"
-    TOML = ".toml"
+    JSON = "json"
+    YAML = "yaml"
+    TOML = "toml"
+    YML = YAML
 
 
 class MetaFile(BaseModel):
@@ -55,6 +56,7 @@ class DatabaseFile(ABC):
     def root(self):
         return self.path.parent
 
+    @property
     def exists(self):
         return self.path.exists()
 

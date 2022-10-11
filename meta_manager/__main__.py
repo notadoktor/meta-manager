@@ -13,9 +13,9 @@ DB_FILENAME = ".mm.metadata"
 DEFAULT_FORMAT = DbFormat.JSON
 DEFAULT_FILENAME = f"{DB_FILENAME}.{DEFAULT_FORMAT}"
 
-TAGS_OPT = Option([], help="Comma-separated list of tags to add", callback=comma_list)
-ATTRS_OPT = Option([], help="Comma-separated list of key=value pairs to add", callback=comma_list)
-FILES_OPT = Option([], help="Comma-separated list of files to add", callback=comma_list)
+TAGS_OPT = Option([], help="Comma-separated list of tags", callback=comma_list)
+ATTRS_OPT = Option([], help="Comma-separated list of key=value pairs", callback=comma_list)
+FILES_OPT = Option([], help="Comma-separated list of files", callback=comma_list)
 
 ###
 
@@ -37,41 +37,51 @@ def init_context(ctx: AppContext):
     ctx.obj = MetaManager(Path(DEFAULT_FILENAME))
 
 
+@app.command("init")
+def init_db_file(
+    ctx: AppContext,
+    fmt: DbFormat = Option(DbFormat.JSON, help="Database format", show_default=True),
+):
+    """Initialize the database."""
+    if ctx.obj.db_file.db_format != fmt:
+        ctx.obj = MetaManager(ctx.obj.db_file.root / f"{DB_FILENAME}.{fmt}")
+
+    if ctx.obj.db_file.exists:
+        echo(f"Database already exists at {ctx.obj.db_file.path}, not initializing.")
+    else:
+        ctx.obj.save()
+        echo(f"Initial database created at {ctx.obj.db_file.path.name}")
+
+
 @app.command()
 def add(
     ctx: AppContext,
-    file: list[str],
+    file: Path,
     tags: list[str] = TAGS_OPT,
     attrs: list[str] = ATTRS_OPT,
 ):
     """Add a new file to the database."""
     echo(f"Adding {file} to the database.")
+    raise NotImplementedError()
 
 
 @app.command()
-def init(ctx: AppContext, fmt: DbFormat | None = None):
-    """Initialize the database."""
-    if fmt and ctx.obj.db_file.db_format != fmt:
-        ctx.obj.db_file = ctx.obj.db_file.root / f"{DB_FILENAME}.{fmt}"
-
-    if ctx.obj.db_file.exists():
-        echo(f"Database already exists at {ctx.obj.db_file.path}, not initializing.")
-        return
-
-    ctx.obj.save()
-    echo(f"Initial database created at {ctx.obj.db_file.name}")
-
-
-@app.command()
-def set_tags(ctx: AppContext, names: list[str] = TAGS_OPT, files: list[Path] = FILES_OPT):
-    """Add a tag to file(s)"""
-    echo(f"Adding tag to {files}.")
+def update(
+    ctx: AppContext,
+    file: Path,
+    tags: list[str] = TAGS_OPT,
+    attrs: list[str] = ATTRS_OPT,
+):
+    """Update an existing file in the database."""
+    echo(f"Updating {file} in the database.")
+    raise NotImplementedError()
 
 
 @app.command()
 def show_file(ctx: AppContext, file: Path):
     """Shows details for the given file"""
     echo("Searching for files.")
+    raise NotImplementedError()
 
 
 @app.command("list")

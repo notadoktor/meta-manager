@@ -9,7 +9,7 @@ class MetaManager:
 
     def __init__(self, db: Path):
         try:
-            db_format = DbFormat(db.suffix)
+            db_format = DbFormat(db.suffix[1:])
         except ValueError:
             raise ValueError(f"Unsupported database format: {db.suffix}")
 
