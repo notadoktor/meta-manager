@@ -1,13 +1,44 @@
 from __future__ import annotations
 
+import datetime
 from abc import ABC, abstractmethod
+from enum import Enum
 from pathlib import Path
+from typing import Optional
 
 import toml
 import yaml
+from pydantic import BaseModel, Field
 
-from meta_manager.classes import DbFormat, MetaDatabase
 from meta_manager.util import hash_data, hash_file
+
+
+class DbFormat(str, Enum):
+    def _generate_next_value_(name, start, count, last_values):
+        return name.lower()
+
+    def __str__(self) -> str:
+        return self.value[1:]
+
+    JSON = ".json"
+    YAML = ".yaml"
+    TOML = ".toml"
+
+
+class MetaFile(BaseModel):
+    path: str
+    md5: str
+    source: Optional[str] = None
+    date_added: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    tags: set[str] = Field(default_factory=set)
+    attrs: dict[str, str] = Field(default_factory=dict)
+
+
+class MetaDatabase(BaseModel):
+    files: dict[Path, MetaFile] = Field(default_factory=dict)
+    date_created: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    last_modified: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    description: Optional[str] = None
 
 
 class DatabaseFile(ABC):
@@ -23,6 +54,9 @@ class DatabaseFile(ABC):
     @property
     def root(self):
         return self.path.parent
+
+    def exists(self):
+        return self.path.exists()
 
     @staticmethod
     def load_file(path: Path, db_format: DbFormat):
